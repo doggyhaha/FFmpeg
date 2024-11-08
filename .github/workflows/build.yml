@@ -20,17 +20,8 @@ jobs:
         id: extract_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - name: windows-x86_64
-            arch: x86_64
-            os: mingw32
-            cross-prefix: x86_64-w64-mingw32-
-            linker: "-pthread -static-libstdc++ -static-libgcc"
+  build-msvc:
+    runs-on: windows-latest
     needs: set-version
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
@@ -41,46 +32,41 @@ jobs:
           repository: FFmpeg/FFmpeg
           ref: release/${{ env.VERSION }}
 
-      - name: Install dependencies
-        if: matrix.platform.name == 'linux-arm64' || matrix.platform.name == 'windows-x86_64'
+      - name: Set up MSVC environment
+        shell: pwsh
         run: |
-          sudo apt-get update -qq
-          if [[ "${{ matrix.platform.name }}" == "linux-arm64" ]]; then
-          sudo apt-get install -qq g++-aarch64-linux-gnu qemu-user
-          fi
-          if [[ "${{ matrix.platform.name }}" == "windows-x86_64" ]]; then
-          sudo apt-get install -qq mingw-w64 gcc-mingw-w64
-          fi
-
-      - name: Build FFmpeg
+          & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find "VC\Auxiliary\Build\vcvars64.bat" | ForEach-Object { & $_ }
+      
+      - name: Build FFmpeg with MSVC
+        shell: bash
         run: |
-            ./configure --prefix=$(pwd)/build_output --cross-prefix="${{ matrix.platform.cross-prefix }}" --enable-cross-compile --target-os="${{ matrix.platform.os }}" --arch="${{ matrix.platform.arch }}" --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="${{ matrix.platform.linker }}" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
-            make -j$(nproc)
-            make install
+          ./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic
+          make -j$(nproc)
+          make install
 
       - name: Prepare for artifact
         run: |
           mkdir -p artifacts/lib
           mkdir -p artifacts/include
-          mv build_output/lib/libavcodec.a artifacts/lib/
-          mv build_output/lib/libavformat.a artifacts/lib/
-          mv build_output/lib/libavutil.a artifacts/lib/
+          mv build_output/lib/avcodec.lib artifacts/lib/
+          mv build_output/lib/avformat.lib artifacts/lib/
+          mv build_output/lib/avutil.lib artifacts/lib/
           mv build_output/include/libavcodec artifacts/include/
           mv build_output/include/libavformat artifacts/include/
           mv build_output/include/libavutil artifacts/include/
-          tar -czvf ffmpeg.${{ matrix.platform.name }}.tar.gz artifacts
+          tar -czvf ffmpeg.windows-msvc.tar.gz artifacts
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg.${{ matrix.platform.name }}.tar.gz
-          path: ffmpeg.${{ matrix.platform.name }}.tar.gz
+          name: ffmpeg.windows-msvc.tar.gz
+          path: ffmpeg.windows-msvc.tar.gz
 
   create-release:
     name: Create Release
     if: contains(github.ref, 'tags/v')
     needs:
-      - build
+      - build-msvc
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
