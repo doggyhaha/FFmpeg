@@ -46,13 +46,19 @@ jobs:
         shell: msys2 {0}
         run: rm $(which link)
 
+      - name: Install VSWhere
+        run: choco install vswhere
+
+      - name: Get VS Path
+        id: get_vs_path
+        run: echo "vs_path=$(vswhere -all -legacy -property installationPath)" >> $GITHUB_ENV
+
       - name: Build FFmpeg with MSVC
         shell: bash
         run: |
           echo "getting vs path from vswhere and running vcvarsall.bat vswhere -all -legacy -property installationPath"
-          set VS_PATH=$(vswhere -all -legacy -property installationPath)
-          echo "vs path is $VS_PATH"
-          "$VS_PATH\VC\Auxiliary\Build\vcvarsall.bat" x64
+          echo "vs path is ${{ steps.get_vs_path.outputs.vs_path }}"
+          "${{ steps.get_vs_path.outputs.vs_path }}\VC\Auxiliary\Build\vcvarsall.bat" x64
           msys2 -c "./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic;make -j$(nproc);make install"
 
       - name: Prepare for artifact
