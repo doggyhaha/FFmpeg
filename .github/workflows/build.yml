@@ -47,7 +47,9 @@ jobs:
       - name: Build FFmpeg
         shell: cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          echo "getting vs path from vswhere and running vcvarsall.bat vswhere -all -legacy -property installationPath"
+          for /f "delims=" %%i in ('vswhere -all -legacy -property installationPath') do set VS_PATH=%%i
+          call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
           
       - name: Build FFmpeg with MSVC
         shell: bash
