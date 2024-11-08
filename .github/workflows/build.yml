@@ -41,10 +41,7 @@ jobs:
             pkgconf
 
       - uses: ilammy/setup-nasm@v1
-      - name: Remove MSYS2 link
-        shell: msys2 {0}
-        run: rm $(which link)
-      - name: Build FFmpeg
+      - name: setup-msvc
         shell: cmd
         run: |
           echo "getting vs path from vswhere and running vcvarsall.bat vswhere -all -legacy -property installationPath"
@@ -55,7 +52,9 @@ jobs:
         shell: bash
         run: |
           msys2 -c "./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic;make -j$(nproc);make install"
-
+      - name: Remove MSYS2 link
+        shell: msys2 {0}
+        run: rm $(which link)
       - name: Prepare for artifact
         run: |
           mkdir -p artifacts/lib
