@@ -46,12 +46,11 @@ jobs:
         shell: msys2 {0}
         run: rm $(which link)
 
-      - uses: seanmiddleditch/gha-setup-vsdevenv@master
-
       - name: Build FFmpeg with MSVC
-        shell: bash
+        shell: msys2 {0}
         run: |
-          msys2 -c "./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic;make -j$(nproc);make install"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          ./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic;make -j$(nproc);make install
 
       - name: Prepare for artifact
         run: |
