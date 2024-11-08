@@ -29,14 +29,17 @@ jobs:
             arch: x86_64
             os: linux
             cross-prefix: ""
+            linker: "-pthread"
           - name: linux-arm64
             arch: aarch64
             os: linux
             cross-prefix: aarch64-linux-gnu-
+            linker: "-pthread"
           - name: windows-x86_64
             arch: x86_64
             os: mingw32
             cross-prefix: x86_64-w64-mingw32-
+            linker: "-pthread -static-libstdc++ -static-libgcc"
     needs: set-version
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
@@ -60,7 +63,7 @@ jobs:
 
       - name: Build FFmpeg
         run: |
-            ./configure --prefix=$(pwd)/build_output --cross-prefix="${{ matrix.platform.cross-prefix }}" --enable-cross-compile --target-os="${{ matrix.platform.os }}" --arch="${{ matrix.platform.arch }}" --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-asm
+            ./configure --prefix=$(pwd)/build_output --cross-prefix="${{ matrix.platform.cross-prefix }}" --enable-cross-compile --target-os="${{ matrix.platform.os }}" --arch="${{ matrix.platform.arch }}" --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="${{ matrix.platform.linker }}" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
             make -j$(nproc)
             make install
 
