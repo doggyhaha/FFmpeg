@@ -32,17 +32,27 @@ jobs:
           repository: FFmpeg/FFmpeg
           ref: release/${{ env.VERSION }}
 
-      - name: Set up MSVC environment
-        shell: pwsh
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: >-
+            diffutils
+            make
+            zip
+            pkgconf
+
+      - uses: ilammy/setup-nasm@v1
+      - name: Remove MSYS2 link
+        shell: msys2 {0}
+        run: rm $(which link)
+      - name: Build FFmpeg
+        shell: cmd
         run: |
-          & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find "VC\Auxiliary\Build\vcvars64.bat" | ForEach-Object { & $_ }
-      
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          
       - name: Build FFmpeg with MSVC
         shell: bash
         run: |
-          ./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic
-          make -j$(nproc)
-          make install
+          msys2 -c "./configure --toolchain=msvc --arch=x86_64 --prefix=$(pwd)/build_output --extra-cflags="-DLIBTWOLAME_STATIC" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic;make -j$(nproc);make install"
 
       - name: Prepare for artifact
         run: |
