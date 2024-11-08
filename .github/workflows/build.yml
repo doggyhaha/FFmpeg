@@ -87,15 +87,6 @@ jobs:
       - uses: ./.github/actions/download
         with:
           platform: windows-x86_64
-      - uses: ./.github/actions/download
-        with:
-          platform: linux-x86_64
-      - uses: ./.github/actions/download
-        with:
-          platform: linux-arm64
-      - uses: ./.github/actions/download
-        with:
-          platform: macos-arm64
       - name: Env to output
         run: |
           echo "package_paths<<EOF" >> $GITHUB_OUTPUT
