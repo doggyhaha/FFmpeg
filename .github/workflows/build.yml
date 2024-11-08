@@ -8,6 +8,7 @@ on:
       - ".gitignore"
     tags:
       - "*"
+  workflow_dispatch:
 
 jobs:
   set-version:
