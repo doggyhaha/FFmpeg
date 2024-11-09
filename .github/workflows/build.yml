@@ -70,7 +70,7 @@ jobs:
           bash -c "export LD=link"
           set CC=cl
           set LD=link
-          bash -c "./configure --prefix=$(pwd)/build_output --cross-prefix=windows-msvc --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
+          bash -c "./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
           bash -c "make -j$(nproc)"
           bash -c "make install"
           echo "built"
