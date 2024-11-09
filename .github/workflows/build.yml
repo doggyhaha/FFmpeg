@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Extract version from tag
         id: extract_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: echo "version=7.1" >> $GITHUB_OUTPUT
 
   build-msvc:
     runs-on: windows-2022 # Windows Server 2022 so that it keeps VS2022
