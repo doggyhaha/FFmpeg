@@ -43,7 +43,7 @@ jobs:
       - name: Install yasm
         run: choco install yasm -y
           
-      - name: Remove MSYS2 link and cl
+      - name: Remove MSYS2 link
         shell: msys2 {0}
         run: |
           rm $(which link)
@@ -59,15 +59,6 @@ jobs:
           $msysPath = "/$msysPath"
           echo "found bin folder: $binFolder"
           echo "bin_folder=$msysPath" >> $GITHUB_OUTPUT
-
-
-      - name: Run vcvars
-        shell: pwsh
-        run: |
-          $binFolder = Get-Content $GITHUB_ENV
-          $vcvars = "$binFolder/vcvars64.bat"
-          if (-not (Test-Path $vcvars)) { throw "vcvars64.bat not found in expected path." }
-          & $vcvars
 
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
