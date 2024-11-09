@@ -57,11 +57,13 @@ jobs:
           $binFolder = Split-Path -Path $clPath -Parent
           $msysPath = $binFolder -replace '^([A-Za-z]):', '/$1' -replace '\\', '/'
           $msysPath = "/$msysPath"
+          echo "found bin folder: $binFolder"
           echo "bin_folder=$msysPath" >> $GITHUB_OUTPUT
 
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
         run: | #export path to override msys cl and link (https://trac.ffmpeg.org/wiki/CompilationGuide/MSVC)
+          export PATH=${{ steps.find_msvc_bin.outputs.bin_folder }}:$PATH
           export CC=${{ steps.find_msvc_bin.outputs.bin_folder }}/cl.exe
           export LD=${{ steps.find_msvc_bin.outputs.bin_folder }}/link.exe
           which cl.exe
