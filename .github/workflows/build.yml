@@ -47,7 +47,6 @@ jobs:
         shell: msys2 {0}
         run: |
           rm $(which link)
-          rm $(which cl)
 
       - name: Find MSVC bin Folder
         id: find_msvc_bin
