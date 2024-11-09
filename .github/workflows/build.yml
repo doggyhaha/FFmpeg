@@ -43,10 +43,11 @@ jobs:
       - name: Install yasm
         run: choco install yasm -y
           
-      - name: Remove MSYS2 link
+      - name: Remove MSYS2 link and cl
         shell: msys2 {0}
-        run: rm $(which link)
-
+        run: |
+          rm $(which link)
+          rm $(which cl)
 
       - name: Find MSVC bin Folder
         id: find_msvc_bin
@@ -63,9 +64,9 @@ jobs:
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
         run: | #export path to override msys cl and link (https://trac.ffmpeg.org/wiki/CompilationGuide/MSVC)
-          export PATH=${{ steps.find_msvc_bin.outputs.bin_folder }}:$PATH
-          export CC=${{ steps.find_msvc_bin.outputs.bin_folder }}/cl.exe
-          export LD=${{ steps.find_msvc_bin.outputs.bin_folder }}/link.exe
+          export PATH="/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.29.30133/bin/HostX64/x64/:$PATH"
+          export CC=cl
+          export LD=link
           which cl.exe
           which link.exe
           ./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
