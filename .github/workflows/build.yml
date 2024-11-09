@@ -66,7 +66,7 @@ jobs:
           export LD=${{ steps.find_msvc_bin.outputs.bin_folder }}/link.exe
           which cl.exe
           which link.exe
-          ./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
+          ./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
           make -j$(nproc)
           make install
 
