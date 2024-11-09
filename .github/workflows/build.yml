@@ -47,19 +47,15 @@ jobs:
         shell: msys2 {0}
         run: rm $(which link)
 
-      - name: Setup MSVC
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
-
       - name: Build FFmpeg with MSVC
-        shell: msys2 {0}
+        shell: cmd4
         run: | #export path to override msys cl and link (https://trac.ffmpeg.org/wiki/CompilationGuide/MSVC)
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
           export PATH="/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/BIN/amd64/":$PATH
           export CC=cl
           export LD=link
-          echo which cl
-          ./configure --toolchain=msvc --arch=x86_64 --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
+          which cl
+          ./configure --toolchain=msvc --arch=x86_64 --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --enable-cross-compile --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
           make -j$(nproc)
           make install
 
