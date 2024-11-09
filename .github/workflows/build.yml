@@ -61,17 +61,15 @@ jobs:
           echo "bin_folder=$msysPath" >> $GITHUB_OUTPUT
 
       - name: Build FFmpeg with MSVC
-        shell: msys2 {0}
+        shell: cmd
         run: | #export path to override msys cl and link (https://trac.ffmpeg.org/wiki/CompilationGuide/MSVC)
           export PATH="/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.29.30133/bin/HostX64/x64/:$PATH"
           export CC=cl
           export LD=link
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
           which cl.exe
           which link.exe
-          ./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
-          make -j$(nproc)
-          make install
+          cygwin -c "./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm;make -j$(nproc);make install"
 
       - name: Check for crash logs
         shell: bash
