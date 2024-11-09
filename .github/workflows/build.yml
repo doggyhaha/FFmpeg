@@ -67,7 +67,8 @@ jobs:
           which cl.exe
           which link.exe
           cygwin -c "./configure --prefix=$(pwd)/build_output --cross-prefix=windows-msvc --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm;make -j$(nproc);make install"
-
+          ls build_output
+          
       - name: Check for crash logs
         shell: bash
         if: failure()
