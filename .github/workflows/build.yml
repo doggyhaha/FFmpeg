@@ -62,9 +62,8 @@ jobs:
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
         run: | #export path to override msys cl and link (https://trac.ffmpeg.org/wiki/CompilationGuide/MSVC)
-          export PATH="${{ steps.find_msvc_bin.outputs.bin_folder }}":$PATH
-          export CC=cl
-          export LD=link
+          export CC=${{ steps.find_msvc_bin.outputs.bin_folder }}/cl.exe
+          export LD=${{ steps.find_msvc_bin.outputs.bin_folder }}/link.exe
           which cl.exe
           which link.exe
           ./configure --toolchain=msvc --target-os=win64 --arch=x86_64 --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread -static-libstdc++ -static-libgcc" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
