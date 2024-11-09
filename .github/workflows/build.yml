@@ -33,12 +33,6 @@ jobs:
           ref: release/${{ env.VERSION }}
 
       - uses: msys2/setup-msys2@v2
-        with:
-          install: >-
-            diffutils
-            make
-            zip
-            pkgconf
 
       - name: Install yasm
         run: choco install yasm -y
