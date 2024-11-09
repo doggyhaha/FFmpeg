@@ -66,6 +66,8 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
           which cl.exe
           which link.exe
+          bash -c "export CC=cl"
+          bash -c "export LD=link"
           bash -c "./configure --prefix=$(pwd)/build_output --cross-prefix=windows-msvc --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
           bash -c "make -j$(nproc)"
           bash -c "make install"
