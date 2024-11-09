@@ -57,7 +57,7 @@ jobs:
           $binFolder = Split-Path -Path $clPath -Parent
           $msysPath = $binFolder -replace '^([A-Za-z]):', '/$1' -replace '\\', '/'
           $msysPath = "/$msysPath"
-          echo "bin_folder=$msysPath" >> $GITHUB_ENV
+          echo "bin_folder=$msysPath" >> $GITHUB_OUTPUT
 
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
