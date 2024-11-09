@@ -33,11 +33,6 @@ jobs:
           ref: release/${{ env.VERSION }}
 
       - uses: msys2/setup-msys2@v2
-        with:
-          install: >-
-            pkg-config
-            yasm
-            make
           
       - name: Remove MSYS2 link
         shell: msys2 {0}
@@ -63,6 +58,8 @@ jobs:
           which cl.exe
           which link.exe
           which make
+          bash -c "pacman -Syu --noconfirm"
+          bash -c "pacman -S --noconfirm make pkg-config"
           bash -c "./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
           bash -c "make -j$(nproc)"
           bash -c "make install"
