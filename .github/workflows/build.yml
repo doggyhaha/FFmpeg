@@ -33,26 +33,24 @@ jobs:
           ref: release/${{ env.VERSION }}
 
       - uses: msys2/setup-msys2@v2
-        with: 
-          install: pkg-config
           
       - name: Remove MSYS2 link
         shell: msys2 {0}
         run: |
           rm $(which link)
-          rm $(which make)
 
-      - name: Find MSVC bin Folder
-        id: find_msvc_bin
-        shell: pwsh
+      # if make exists, delete it and install it via pacman
+      - name: Install make
+        shell: msys2 {0}
         run: |
-          $clPath = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC" -Recurse -Filter "cl.exe" | Where-Object { $_.FullName -match "Hostx64\\x64" } | Select-Object -First 1 -ExpandProperty FullName
-          if (-not $clPath) { throw "cl.exe not found in expected path." }
-          $binFolder = Split-Path -Path $clPath -Parent
-          $msysPath = $binFolder -replace '^([A-Za-z]):', '/$1' -replace '\\', '/'
-          $msysPath = "/$msysPath"
-          echo "found bin folder: $binFolder"
-          echo "bin_folder=$msysPath" >> $GITHUB_OUTPUT
+          if test -f $(which make); then
+            echo "make exists, removing it"
+            rm $(which make)
+          fi
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm make
+          pacman -S --noconfirm diffutils
+          pacman -S --noconfirm pkg-config
 
       - name: Build FFmpeg with MSVC
         shell: cmd
