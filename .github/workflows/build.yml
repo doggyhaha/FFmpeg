@@ -43,10 +43,6 @@ jobs:
       - name: Install make
         shell: msys2 {0}
         run: |
-          if test -f $(which make); then
-            echo "make exists, removing it"
-            rm $(which make)
-          fi
           pacman -Syu --noconfirm
           pacman -S --noconfirm make
           pacman -S --noconfirm diffutils
