@@ -26,6 +26,10 @@ jobs:
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
     steps:
+      - name: Check out this repo
+        uses: actions/checkout@v4
+        with:
+          path: fftools
 
       - name: Check out FFmpeg
         uses: actions/checkout@v4
@@ -34,11 +38,6 @@ jobs:
           ref: release/${{ env.VERSION }}
 
       - uses: msys2/setup-msys2@v2
-          
-      - name: Remove MSYS2 link
-        shell: msys2 {0}
-        run: |
-          rm $(which link)
 
       # if make exists, delete it and install it via pacman
       - name: Install pkgs
@@ -50,7 +49,9 @@ jobs:
         shell: msys2 {0}
         run: | 
           echo "running vcvars.sh from fftools"
-          curl -L https://github.com/${{ github.repository }}/blob/master/vcvars.sh -o vcvars.sh
+          echo pwd
+          echo ls
+          mv fftools/vcvars.sh .
           source ./vcvars.sh
           echo $PATH
           ./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
