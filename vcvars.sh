@@ -31,22 +31,13 @@ get_msvc_version() {
     echo "$msvc_version"
 }
 
-get_windows_kits_version_include() {
+get_windows_kits_version() {
     #get windows kits version
     local windows_kits_version=$(ls -1 "$windows_kits_base_path/Include" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
     #get latest version
     windows_kits_version=$(echo "$windows_kits_version" | sort -nr | head -n1)
     echo "$windows_kits_version"
 }
-
-get_windows_kits_version_lib() {
-    #get windows kits version
-    local windows_kits_version=$(ls -1 "$windows_kits_base_path/Lib" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-    #get latest version
-    windows_kits_version=$(echo "$windows_kits_version" | sort -nr | head -n1)
-    echo "$windows_kits_version"
-}
-
 
 vs_edition="$(get_vs_edition)"
 msvc_version="$(get_msvc_version $vs_edition)"
