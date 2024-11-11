@@ -26,7 +26,7 @@ jobs:
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
     steps:
-      - name: Check out the repo
+      - name: Check out FFmpeg
         uses: actions/checkout@v4
         with:
           repository: FFmpeg/FFmpeg
@@ -40,22 +40,26 @@ jobs:
           rm $(which link)
 
       # if make exists, delete it and install it via pacman
-      - name: Install make
+      - name: Install pkgs
         shell: msys2 {0}
         run: |
           pacman -S --noconfirm base-devel
 
+      - name: Check out this repoù
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: fftools
+
       - name: Build FFmpeg with MSVC
-        shell: cmd
-        run: | #VSVARSALL IS CRUCIAL LELELELE
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
-          which cl.exe
-          which link.exe
-          which make
-          which bash
-          bash -l -c "./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
-          bash -l -c "make -j$(nproc)"
-          bash -l -c "make install"
+        shell: msys2 {0}
+        run: | 
+          echo "running vcvars.sh from fftools"
+          mv fftools/vcvars.sh .
+          ./vcvars.sh
+          ./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
+          make -j$(nproc)
+          make install
           echo built
           ls build_output
           ls build_output/lib
