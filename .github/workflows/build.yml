@@ -43,11 +43,9 @@ jobs:
       - name: Install make
         shell: msys2 {0}
         run: |
-          pacman -S --noconfirm base-devel
           pacman -R --noconfirm make
-          pacman -S --noconfirm make
-          
-
+          pacman -R --noconfirm gawk
+          pacman -S --noconfirm base-devel
 
       - name: Build FFmpeg with MSVC
         shell: cmd
@@ -56,10 +54,11 @@ jobs:
           which cl.exe
           which link.exe
           which make
-          bash -c "./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
-          bash -c "make -j$(nproc)"
-          bash -c "make install"
-          echo "built"
+          which bash
+          bash -l -c "./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm"
+          bash -l -c "make -j$(nproc)"
+          bash -l -c "make install"
+          echo built
           ls build_output
           ls build_output/lib
           ls build_output/include
