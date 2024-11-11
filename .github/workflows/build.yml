@@ -48,13 +48,13 @@ jobs:
       - name: Check out this repo
         uses: actions/checkout@v4
         with:
-          path: fftools
+          path: ../fftools
 
       - name: Build FFmpeg with MSVC
         shell: msys2 {0}
         run: | 
           echo "running vcvars.sh from fftools"
-          mv fftools/vcvars.sh .
+          mv ../fftools/vcvars.sh .
           source ./vcvars.sh
           echo $PATH
           ./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
