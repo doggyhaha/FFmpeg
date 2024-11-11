@@ -26,11 +26,6 @@ jobs:
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
     steps:
-      - name: Check out this repo
-        uses: actions/checkout@v4
-        with:
-          path: fftools
-
       - name: Check out FFmpeg
         uses: actions/checkout@v4
         with:
@@ -49,9 +44,7 @@ jobs:
         shell: msys2 {0}
         run: | 
           echo "running vcvars.sh from fftools"
-          echo pwd
-          echo ls
-          mv fftools/vcvars.sh .
+          curl -L https://raw.githubusercontent.com/${{ github.repository }}/refs/heads/master/vcvars.sh -o vcvars.sh
           source ./vcvars.sh
           echo $PATH
           ./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
