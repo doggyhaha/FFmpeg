@@ -25,7 +25,7 @@ get_vs_edition() {
 get_msvc_version() {
     #get msvc version
     vs_edition=$1
-    local msvc_version=$(ls -1 "$vs_base_path/$vs_edition/VC/Tools/MSVC" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+    local msvc_version=$(ls -1 "$vs_base_path/$vs_edition/VC/Tools/MSVC" | grep -Eo '[0-9.]+')
     #get latest version
     msvc_version=$(echo "$msvc_version" | sort -nr | head -n1)
     echo "$msvc_version"
@@ -33,11 +33,12 @@ get_msvc_version() {
 
 get_windows_kits_version() {
     #get windows kits version
-    local windows_kits_version=$(ls -1 "$windows_kits_base_path/Include" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+    local windows_kits_version=$(ls -1 "$windows_kits_base_path/Include" | grep -Eo '[0-9.]+')
     #get latest version
     windows_kits_version=$(echo "$windows_kits_version" | sort -nr | head -n1)
     echo "$windows_kits_version"
 }
+
 
 vs_edition="$(get_vs_edition)"
 msvc_version="$(get_msvc_version $vs_edition)"
