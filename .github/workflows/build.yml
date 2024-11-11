@@ -75,9 +75,9 @@ jobs:
         run: |
           mkdir -p artifacts/lib
           mkdir -p artifacts/include
-          mv build_output/lib/avcodec.lib artifacts/lib/
-          mv build_output/lib/avformat.lib artifacts/lib/
-          mv build_output/lib/avutil.lib artifacts/lib/
+          mv build_output/lib/libavcodec.a artifacts/lib/avcodec.lib
+          mv build_output/lib/libavformat.a artifacts/lib/avformat.lib
+          mv build_output/lib/libavutil.a artifacts/lib/avutil.lib
           mv build_output/include/libavcodec artifacts/include/
           mv build_output/include/libavformat artifacts/include/
           mv build_output/include/libavutil artifacts/include/
