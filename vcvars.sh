@@ -47,3 +47,6 @@ export PATH="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/bin/Hostx64/x
 export LIB="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/lib/x64:$windows_kits_base_path/$windows_kits_version/um/x64:$windows_kits_base_path/$windows_kits_version/ucrt/x64"
 export INCLUDE="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/include:$windows_kits_base_path/$windows_kits_version/ucrt:$windows_kits_base_path/$windows_kits_version/um:$windows_kits_base_path/$windows_kits_version/shared"
 echo "SET VCVARS FOR vs $vs_edition msvc $msvc_version windows kits $windows_kits_version"
+echo "PATH=$PATH"
+echo "LIB=$LIB"
+echo "INCLUDE=$INCLUDE"
