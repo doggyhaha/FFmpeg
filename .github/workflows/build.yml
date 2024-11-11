@@ -45,7 +45,7 @@ jobs:
         run: |
           pacman -S --noconfirm base-devel
 
-      - name: Check out this repoù
+      - name: Check out this repo
         uses: actions/checkout@v4
         with:
           path: fftools
