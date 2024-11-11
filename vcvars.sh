@@ -9,20 +9,20 @@ get_vs_edition() {
     local vs_base_path="$vs_base_path/$vs_year"
     #get edition
     local vs_edition=$(ls -1 "$vs_base_path" | grep -Eo 'Community|Professional|Enterprise')
-    return "$vs_year/$vs_edition"
+    echo "$vs_year/$vs_edition"
 }
 
 get_msvc_version() {
     #get msvc version
     vs_edition = $1
     local msvc_version=$(ls -1 "$vs_base_path/$vs_edition/VC/Tools/MSVC" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-    return "$msvc_version"
+    echo "$msvc_version"
 }
 
 get_windows_kits_version() {
     #get windows kits version
     local windows_kits_version=$(ls -1 "$windows_kits_base_path" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-    return "$windows_kits_version"
+    echo "$windows_kits_version"
 }
 
 vs_edition="$(get_vs_edition)"
