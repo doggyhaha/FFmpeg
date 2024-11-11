@@ -55,7 +55,8 @@ jobs:
         run: | 
           echo "running vcvars.sh from fftools"
           mv fftools/vcvars.sh .
-          source vcvars.sh
+          source ./vcvars.sh
+          echo $PATH
           ./configure --prefix=$(pwd)/build_output --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
           make -j$(nproc)
           make install
