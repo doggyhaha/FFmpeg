@@ -1,4 +1,4 @@
-name: build 
+name: build
 on:
   push:
     paths-ignore:
@@ -8,7 +8,6 @@ on:
       - ".gitignore"
     tags:
       - "*"
-  workflow_dispatch:
 
 jobs:
   set-version:
@@ -18,7 +17,7 @@ jobs:
     steps:
       - name: Extract version from tag
         id: extract_version
-        run: echo "version=7.1" >> $GITHUB_OUTPUT
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
   build-linux:
     runs-on: ubuntu-latest
@@ -38,7 +37,7 @@ jobs:
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
     steps:
-      - name: Check out FFmpeg
+      - name: Check out the repo
         uses: actions/checkout@v4
         with:
           repository: FFmpeg/FFmpeg
@@ -58,11 +57,23 @@ jobs:
             make -j$(nproc)
             make install
 
-      # if make exists, delete it and install it via pacman
-      - name: Install pkgs
-        shell: msys2 {0}
+      - name: Prepare for artifact
         run: |
-          pacman -S --noconfirm base-devel
+          mkdir -p artifacts/lib
+          mkdir -p artifacts/include
+          mv build_output/lib/libavcodec.a artifacts/lib/
+          mv build_output/lib/libavformat.a artifacts/lib/
+          mv build_output/lib/libavutil.a artifacts/lib/
+          mv build_output/include/libavcodec artifacts/include/
+          mv build_output/include/libavformat artifacts/include/
+          mv build_output/include/libavutil artifacts/include/
+          tar -czvf ffmpeg.${{ matrix.platform.name }}.tar.gz artifacts
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg.${{ matrix.platform.name }}.tar.gz
+          path: ffmpeg.${{ matrix.platform.name }}.tar.gz
 
   build-windows:
     runs-on: windows-2022
@@ -150,34 +161,29 @@ jobs:
           repository: FFmpeg/FFmpeg
           ref: release/${{ env.VERSION }}
 
-      - name: Check for crash logs
-        shell: bash
-        if: failure()
+      - name: Build FFmpeg
         run: |
-          if test -f ffbuild/config.log; then
-            echo "Crash logs found:"
-            cat ffbuild/config.log
-          else
-            echo "No crash log found"
-          fi
-    
+            ./configure --prefix=$(pwd)/build_output --enable-cross-compile --target-os=darwin --arch=arm64 --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-asm
+            make -j$(sysctl -n hw.logicalcpu)
+            make install
+
       - name: Prepare for artifact
         run: |
           mkdir -p artifacts/lib
           mkdir -p artifacts/include
-          mv build_output/lib/libavcodec.a artifacts/lib/avcodec.lib
-          mv build_output/lib/libavformat.a artifacts/lib/avformat.lib
-          mv build_output/lib/libavutil.a artifacts/lib/avutil.lib
+          mv build_output/lib/libavcodec.a artifacts/lib/
+          mv build_output/lib/libavformat.a artifacts/lib/
+          mv build_output/lib/libavutil.a artifacts/lib/
           mv build_output/include/libavcodec artifacts/include/
           mv build_output/include/libavformat artifacts/include/
           mv build_output/include/libavutil artifacts/include/
-          tar -czvf ffmpeg.windows-msvc.tar.gz artifacts
+          tar -czvf ffmpeg.macos-arm64.tar.gz artifacts
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg.windows-msvc.tar.gz
-          path: ffmpeg.windows-msvc.tar.gz
+          name: ffmpeg.${{ matrix.platform.name }}.tar.gz
+          path: ffmpeg.${{ matrix.platform.name }}.tar.gz
 
   create-release:
     name: Create Release
@@ -192,6 +198,15 @@ jobs:
       - uses: ./.github/actions/download
         with:
           platform: windows-x86_64
+      - uses: ./.github/actions/download
+        with:
+          platform: linux-x86_64
+      - uses: ./.github/actions/download
+        with:
+          platform: linux-arm64
+      - uses: ./.github/actions/download
+        with:
+          platform: macos-arm64
       - name: Env to output
         run: |
           echo "package_paths<<EOF" >> $GITHUB_OUTPUT
