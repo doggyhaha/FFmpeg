@@ -59,6 +59,8 @@ jobs:
           bash -c "make install"
           echo "built"
           ls build_output
+          ls build_output/lib
+          ls build_output/include
 
       - name: Check for crash logs
         shell: bash
@@ -75,9 +77,9 @@ jobs:
         run: |
           mkdir -p artifacts/lib
           mkdir -p artifacts/include
-          mv build_output/lib/libavcodec.a artifacts/lib/avcodec.lib
-          mv build_output/lib/libavformat.a artifacts/lib/avformat.lib
-          mv build_output/lib/libavutil.a artifacts/lib/avutil.lib
+          mv build_output/lib/avcodec.a artifacts/lib/avcodec.lib
+          mv build_output/lib/avformat.a artifacts/lib/avformat.lib
+          mv build_output/lib/avutil.a artifacts/lib/avutil.lib
           mv build_output/include/libavcodec artifacts/include/
           mv build_output/include/libavformat artifacts/include/
           mv build_output/include/libavutil artifacts/include/
