@@ -1,6 +1,6 @@
 # Description: A better vcvarsall.bat for MSVC on Windows
 vs_base_path="/c/Program Files/Microsoft Visual Studio"
-windows_kits_base_path="/c/Program Files (x86)/Windows Kits/10/Include"
+windows_kits_base_path="/c/Program Files (x86)/Windows Kits/10"
 
 get_vs_edition() {
     #get year and edition
@@ -44,8 +44,8 @@ msvc_version="$(get_msvc_version $vs_edition)"
 windows_kits_version="$(get_windows_kits_version)"
 
 export PATH="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/bin/Hostx64/x64:$PATH"
-export LIB="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/lib/x64:$windows_kits_base_path/$windows_kits_version/um/x64:$windows_kits_base_path/$windows_kits_version/ucrt/x64"
-export INCLUDE="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/include:$windows_kits_base_path/$windows_kits_version/ucrt:$windows_kits_base_path/$windows_kits_version/um:$windows_kits_base_path/$windows_kits_version/shared"
+export LIB="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/lib/x64:$windows_kits_base_path/Lib/$windows_kits_version/um/x64:$windows_kits_base_path/Lib/$windows_kits_version/ucrt/x64"
+export INCLUDE="$vs_base_path/$vs_edition/VC/Tools/MSVC/$msvc_version/include:$windows_kits_base_path/Include/$windows_kits_version/ucrt:$windows_kits_base_path/Include/$windows_kits_version/um:$windows_kits_base_path/Include/$windows_kits_version/shared"
 echo "SET VCVARS FOR vs $vs_edition msvc $msvc_version windows kits $windows_kits_version"
 echo "PATH=$PATH"
 echo "LIB=$LIB"
