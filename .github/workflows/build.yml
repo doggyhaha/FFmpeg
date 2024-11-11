@@ -20,8 +20,57 @@ jobs:
         id: extract_version
         run: echo "version=7.1" >> $GITHUB_OUTPUT
 
-  build-msvc:
-    runs-on: windows-2022 # Windows Server 2022 so that it keeps VS2022
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: linux-x86_64
+            arch: x86_64
+            os: linux
+            cross-prefix: ""
+          - name: linux-arm64
+            arch: aarch64
+            os: linux
+            cross-prefix: aarch64-linux-gnu-
+    needs: set-version
+    env:
+      VERSION: ${{ needs.set-version.outputs.version }}
+    steps:
+      - name: Check out FFmpeg
+        uses: actions/checkout@v4
+        with:
+          repository: FFmpeg/FFmpeg
+          ref: release/${{ env.VERSION }}
+
+      - name: Install dependencies
+        if: matrix.platform.name == 'linux-arm64' || matrix.platform.name == 'windows-x86_64'
+        run: |
+          sudo apt-get update -qq
+          if [[ "${{ matrix.platform.name }}" == "linux-arm64" ]]; then
+          sudo apt-get install -qq g++-aarch64-linux-gnu qemu-user
+          fi
+
+      - name: Build FFmpeg
+        run: |
+            ./configure --prefix=$(pwd)/build_output --cross-prefix="${{ matrix.platform.cross-prefix }}" --enable-cross-compile --target-os="${{ matrix.platform.os }}" --arch="${{ matrix.platform.arch }}" --extra-cflags="-DLIBTWOLAME_STATIC" --extra-ldflags="-pthread" --disable-programs --disable-doc --disable-network --disable-everything --enable-protocol=file --enable-decoder=h264 --enable-parser=h264 --enable-demuxer=h264 --enable-muxer=mp4 --enable-pic --disable-dxva2 --disable-asm
+            make -j$(nproc)
+            make install
+
+      # if make exists, delete it and install it via pacman
+      - name: Install pkgs
+        shell: msys2 {0}
+        run: |
+          pacman -S --noconfirm base-devel
+
+  build-windows:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: windows-x86_64
     needs: set-version
     env:
       VERSION: ${{ needs.set-version.outputs.version }}
@@ -34,7 +83,6 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
 
-      # if make exists, delete it and install it via pacman
       - name: Install pkgs
         shell: msys2 {0}
         run: |
@@ -54,6 +102,53 @@ jobs:
           ls build_output
           ls build_output/lib
           ls build_output/include
+
+      - name: Check for crash logs
+        shell: bash
+        if: failure()
+        run: |
+          if test -f ffbuild/config.log; then
+            echo "Crash logs found:"
+            cat ffbuild/config.log
+          else
+            echo "No crash log found"
+          fi
+
+      - name: Prepare for artifact
+        run: |
+          mkdir artifacts/lib
+          mkdir artifacts/include
+          move build_output/lib/libavcodec.a artifacts/lib/avcodec.lib
+          move build_output/lib/libavformat.a artifacts/lib/avformat.lib
+          move build_output/lib/libavutil.a artifacts/lib/avutil.lib
+          move build_output/include/libavcodec artifacts/include/
+          move build_output/include/libavformat artifacts/include/
+          move build_output/include/libavutil artifacts/include/
+          Compress-Archive -Path artifacts -DestinationPath ffmpeg.${{ matrix.platform.name }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg.${{ matrix.platform.name }}.zip
+          path: ffmpeg.${{ matrix.platform.name }}.zip
+  
+
+  build-macos:
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: macos-arm64
+    needs: set-version
+    env:
+      VERSION: ${{ needs.set-version.outputs.version }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          repository: FFmpeg/FFmpeg
+          ref: release/${{ env.VERSION }}
 
       - name: Check for crash logs
         shell: bash
@@ -88,7 +183,9 @@ jobs:
     name: Create Release
     if: contains(github.ref, 'tags/v')
     needs:
-      - build-msvc
+      - build-linux
+      - build-windows
+      - build-macos
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
